@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 weather_data = pd.read_csv('weather_data_cleaned.csv')
 print(weather_data.columns)
-X = weather_data.drop(columns=['Precipitation_mm', 'Precipitation_in', 'Rain_Category', 'Date_Time', 'Location', 'Date', 'Time', 'Millitary_Time'])
+X = weather_data.drop(columns=['Precipitation_mm', 'Temperature_F', 'Precipitation_in', 'Rain_Category', 'Date_Time', 'Location', 'Date', 'Time', 'Millitary_Time'])
 y = weather_data['Precipitation_mm']
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -17,7 +17,7 @@ print('X_train.shape = ', X_train.shape)
 print('y_train.shape = ', y_train.shape)
 print('X_test.shape = ', X_test.shape)
 print('y_test.shape = ', y_test.shape)
-dt = DecisionTreeRegressor()
+dt = DecisionTreeRegressor(max_depth=2)
 dt.fit(X_train, y_train)
 y_train_pred = dt.predict(X_train)
 print(r2_score(y_train, y_train_pred))
