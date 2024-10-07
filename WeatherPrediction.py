@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 weather_data = pd.read_csv('weather_data_cleaned.csv')
 print(weather_data.columns)
-X = weather_data.drop(columns=['Precipitation_mm', 'Rain_Category', 'Date_Time', 'Location', 'Date', 'Time', 'Millitary_Time'])
+X = weather_data.drop(columns=['Precipitation_mm', 'Precipitation_in', 'Rain_Category', 'Date_Time', 'Location', 'Date', 'Time', 'Millitary_Time'])
 y = weather_data['Precipitation_mm']
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
