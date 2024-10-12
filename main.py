@@ -14,6 +14,9 @@ import customtkinter
 from tkcalendar import Calendar
 from datetime import datetime
 
+from Predictor import Predictor
+
+
 class App(customtkinter.CTk):
     # ----------------------------------------------------------------------------------------------------------------
     # 1. Setting up the Primary Containers of the UI
@@ -26,14 +29,14 @@ class App(customtkinter.CTk):
         customtkinter.set_default_color_theme('dark-blue')
 
         self.title("AI GUI")
-        self.geometry("1000x700")
+        self.geometry("1200x800")
 
         # Create a container to put a label in for the right side of the UI
-        self.right_frame = customtkinter.CTkFrame(master=self, width=500, height=400)
+        self.right_frame = customtkinter.CTkFrame(master=self, width=750, height=400)
 
 
         # Create a label to be used to display the results on the right hand side of the UI
-        self.results_text_area = customtkinter.CTkLabel(master=self.right_frame, width=590, height=650,
+        self.results_text_area = customtkinter.CTkLabel(master=self.right_frame, width=700, height=740,
                                                         fg_color='silver', text_color='black', font=('Arial', 20), text='',
                                                         justify='left', anchor='nw')
 
@@ -52,7 +55,7 @@ class App(customtkinter.CTk):
 
         # Create the tab view that will hold the UI elements for each use case.
     def create_tab_view(self):
-        self.tab_view_builder = customtkinter.CTkTabview(self, width=380, height=650, fg_color='silver')
+        self.tab_view_builder = customtkinter.CTkTabview(self, width=380, height=750, fg_color='silver')
 
         # Create the individual tabs
         self.tab_1 = self.tab_view_builder.add('Tab 1')
@@ -81,6 +84,9 @@ class App(customtkinter.CTk):
         self.tab_1_temperature_label = self.create_label(self.tab_1,'Temperature (F)', 15)
         self.tab_1_temperature_slider = self.create_slider(self.tab_1,32, 95, self.get_tab_1_temperature_slider_number, 32)
         self.tab_1_temperature_slider_value_label = self.create_label(self.tab_1,self.tab_1_temperature_slider.get(), 15)
+        self.tab_1_wind_speed_label = self.create_label(self.tab_1,'Wind Speed (km/h)', 15)
+        self.tab_1_wind_speed_slider = self.create_slider(self.tab_1,0, 40, self.get_tab_1_wind_speed_slider_number, 0)
+        self.tab_1_wind_speed_slider_value_label = self.create_label(self.tab_1,self.tab_1_wind_speed_slider.get(), 15)
         self.tab_1_submit_button = self.create_button(self.tab_1, self.tab1_submit)
 
 
@@ -96,6 +102,11 @@ class App(customtkinter.CTk):
         self.tab_1_temperature_label.pack(pady=5, padx=5)
         self.tab_1_temperature_slider.pack(pady=5, padx=5)
         self.tab_1_temperature_slider_value_label.pack(pady=5, padx=5)
+        self.tab_1_wind_speed_label.pack(pady=5, padx=5)
+        self.tab_1_wind_speed_slider.pack(pady=5, padx=5)
+        self.tab_1_wind_speed_slider_value_label.pack(pady=5, padx=5)
+
+
         self.tab_1_submit_button.pack(pady=5, padx=5)
 
 
@@ -136,18 +147,42 @@ class App(customtkinter.CTk):
     def get_tab_1_temperature_slider_number(self, value):
         self.tab_1_temperature_slider_value_label.configure(text=int(value))
 
+        # Updates the wind speed slider value label each time the slider is moved on tab 1
+    def get_tab_1_wind_speed_slider_number(self, value):
+        self.tab_1_wind_speed_slider_value_label.configure(text=int(value))
+
+
+
         # Prints the current values of the elements in tab 1 to the textbox on the right side of the UI
     def tab1_submit(self):
         # Clears any old text from the textbox before adding the new text
         self.clear_textbox()
 
-        text =  (f'Location: {self.tab_1_location_combobox.get()}'
-                 f'\nDate: {self.tab_1_calender.get_date()} '
-                 f'\nHumidity: {int(self.tab_1_humidity_slider.get())}%'
-                 f'\nTemperature: {int(self.tab_1_temperature_slider.get())}F')
+        # Create an object of the Predictor class
+        predict = Predictor()
 
-        #self.textbox.insert("0.0", text)
+        # Get user inputted values
+        location = self.tab_1_location_combobox.get()
+        date = self.tab_1_calender.get_date()
+        humidity = int(self.tab_1_humidity_slider.get())
+        temp = int(self.tab_1_temperature_slider.get())
+        wind_speed =int(self.tab_1_wind_speed_slider.get())
+
+        # Retrieve rain probability prediction
+        prediction = predict.predict_rain_probability(location=location, date=date, humidity=humidity, temp=temp, wind_speed=wind_speed)
+
+        text = (f'Location: {location} \nDate: {date}'
+                f'\nTemperature: {temp}F \nHumidity: {humidity}% \nWind Speed: {wind_speed}kph'
+                f'\nProbability of Rain: {prediction:.2f}%')
+
         self.results_text_area.configure(text=text)
+
+
+
+
+
+
+
 
         # Clears the text from the textbox if text is found in the textbox
     def clear_textbox(self):
