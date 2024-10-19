@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from joblib import load
 
+from Coordinate import Coordinate
+
 
 class Predictor:
 
@@ -32,6 +34,14 @@ class Predictor:
         })
 
         probability_of_rain = self.rain_probability_model.predict_proba(use_inputs)[:,1][0] * 100
+
+        # Testing to see if grabbing the lat and longs works for when the model gets updated.
+        coords = Coordinate()
+        lat, long = coords.get_lat_and_long(location)
+        print('Lat: ', lat)
+        print('Long: ', long)
+
+
 
         return probability_of_rain
 
